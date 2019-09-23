@@ -60,7 +60,7 @@ typings/
 # next.js build output
 .next
 
-# vs工程组件
+# vs project file 
 .vs/
 *.njsproj
 *.sln
