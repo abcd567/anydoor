@@ -60,12 +60,13 @@ typings/
 # next.js build output
 .next
 
-# vs project file 
+# vs 2017 project file 
 .vs/
 *.njsproj
 *.sln
-
-# other
-.idea/
 bin/
 obj/
+
+# pycharm
+.idea/
+

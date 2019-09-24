@@ -7,8 +7,8 @@ const route = require('./helper/route');
 
 // 创建服务
 const server = http.createServer((req, res) => {
-  const fileParh = path.join(conf.root, req.url);
-  route(req, res, fileParh);
+  const filePath = path.join(conf.root, req.url);
+  route(req, res, filePath);
 });
 
 // 服务的监听端口
