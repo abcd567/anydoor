@@ -1,13 +1,14 @@
 const http = require('http');
 const chalk = require('chalk');
+const path = require('path');
 const conf = require('./myConfig/myDefaultConfig');
+const route = require('./helper/route');
 
 
 // 创建服务
 const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/html');
-  res.end('<h1>Server Start Success</h1>');
+  const fileParh = path.join(conf.root, req.url);
+  route(req, res, fileParh);
 });
 
 // 服务的监听端口

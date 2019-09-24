@@ -64,3 +64,8 @@ typings/
 .vs/
 *.njsproj
 *.sln
+
+# other
+.idea/
+bin/
+obj/
