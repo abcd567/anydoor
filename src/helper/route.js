@@ -10,6 +10,7 @@ const Handlebars = require('handlebars');
 const { promisify } = require('util');
 const conf = require('../myConfig/myDefaultConfig');
 const mime = require('./mime');
+const isFresh = require('./cache');
 
 // 流程化异步操作
 const stat = promisify(fs.stat);
@@ -26,14 +27,23 @@ module.exports = async function route(req, res, filePath) {
   try {
     // 判断路径是否存在,不存在捕获异常
     const stats = await stat(filePath);
+
     if (stats.isFile()) {
-      // 读文件
-      res.statuscode = 200;
+      /* 读文件 */
       res.setHeader('Content-Type', mime(filePath));
+      if (isFresh(req, res, stats)) {
+        /* 文件已在缓存，且缓存有效 */
+        res.statusCode = 304;
+        // 服务器不需返回数据，浏览器自动取缓存
+        res.end();
+        return;
+      }
+      res.statusCode = 200;
+
       const rs = fs.createReadStream(filePath);
       rs.pipe(res);
     } else if (stats.isDirectory()) {
-      // 显示文件夹
+      /* 显示文件夹 */
       const files = await readdir(filePath);
       res.statuscode = 200;
       res.setHeader('Content-Type', 'text/html');
@@ -51,8 +61,8 @@ module.exports = async function route(req, res, filePath) {
       res.end(template(data));
     }
   } catch (ex) {
-    // 不存在
-    res.statuscode = 404;
+    /* 不存在 */
+    res.statusCode = 404;
     res.setHeader('Content-Type', 'text/plain');
     res.end(`NOT FOUND.Path ${filePath} is not exists.`);
   }
