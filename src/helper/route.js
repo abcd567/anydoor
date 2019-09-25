@@ -12,6 +12,7 @@ const conf = require('../myConfig/myDefaultConfig');
 const mime = require('./mime');
 const isFresh = require('./cache');
 const compress = require('./compress');
+const range = require('./range');
 
 // 流程化异步操作
 const stat = promisify(fs.stat);
@@ -33,7 +34,7 @@ module.exports = async function route(req, res, filePath) {
       /* 读文件 */
       res.setHeader('Content-Type', mime(filePath));
 
-      // 缓存
+      // 缓存cache
       if (isFresh(req, res, stats)) {
         /* 文件已在缓存，且缓存有效 */
         res.statusCode = 304;
@@ -41,11 +42,18 @@ module.exports = async function route(req, res, filePath) {
         res.end();
         return;
       }
+      let rs;
+      // 范围range
+      const { code, start, end } = range(req, res, stats.size);
+      if (code === 206) {
+        res.statusCode = 206;
+        rs = fs.createReadStream(filePath, { start, end });
+      } else {
+        res.statusCode = 200;
+        rs = fs.createReadStream(filePath);
+      }
 
-      res.statusCode = 200;
-      let rs = fs.createReadStream(filePath);
-
-      // 压缩
+      // 压缩compress
       if (filePath.match(conf.compress)) {
         /* 压缩文件 */
         rs = compress(req, res, rs);
