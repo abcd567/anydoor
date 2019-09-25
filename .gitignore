@@ -70,3 +70,6 @@ obj/
 # pycharm
 .idea/
 
+# test
+test/
+

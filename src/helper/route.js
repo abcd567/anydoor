@@ -1,7 +1,7 @@
 /* 对文件路径进行判断
  *
  *  文件夹：显示文件夹下所有文件
- *  文件：显示文件内容
+ *  文件：按文件后缀格式，显示对应文件内容。
  * */
 
 const fs = require('fs');
@@ -9,6 +9,8 @@ const path = require('path');
 const Handlebars = require('handlebars');
 const { promisify } = require('util');
 const conf = require('../myConfig/myDefaultConfig');
+const mime = require('./mime');
+
 // 流程化异步操作
 const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
@@ -27,7 +29,7 @@ module.exports = async function route(req, res, filePath) {
     if (stats.isFile()) {
       // 读文件
       res.statuscode = 200;
-      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Type', mime(filePath));
       const rs = fs.createReadStream(filePath);
       rs.pipe(res);
     } else if (stats.isDirectory()) {
@@ -41,7 +43,10 @@ module.exports = async function route(req, res, filePath) {
         title: path.basename(filePath),
         // 文件夹相对路径
         dir: dir ? `/${dir}` : '',
-        files,
+        files: files.map((file) => ({
+          file,
+          icon: fs.statSync(file).isFile() ? mime(file) : 'Dir OR Other',
+        })),
       };
       res.end(template(data));
     }
