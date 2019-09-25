@@ -55,7 +55,7 @@ module.exports = async function route(req, res, filePath) {
         dir: dir ? `/${dir}` : '',
         files: files.map((file) => ({
           file,
-          icon: fs.statSync(file).isFile() ? mime(file) : 'Dir OR Other',
+          icon: fs.statSync(path.join(filePath, file)).isDirectory() ? 'dir' : mime(file),
         })),
       };
       res.end(template(data));
