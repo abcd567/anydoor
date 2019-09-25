@@ -11,6 +11,7 @@ const { promisify } = require('util');
 const conf = require('../myConfig/myDefaultConfig');
 const mime = require('./mime');
 const isFresh = require('./cache');
+const compress = require('./compress');
 
 // 流程化异步操作
 const stat = promisify(fs.stat);
@@ -31,6 +32,8 @@ module.exports = async function route(req, res, filePath) {
     if (stats.isFile()) {
       /* 读文件 */
       res.setHeader('Content-Type', mime(filePath));
+
+      // 缓存
       if (isFresh(req, res, stats)) {
         /* 文件已在缓存，且缓存有效 */
         res.statusCode = 304;
@@ -38,9 +41,17 @@ module.exports = async function route(req, res, filePath) {
         res.end();
         return;
       }
-      res.statusCode = 200;
 
-      const rs = fs.createReadStream(filePath);
+      res.statusCode = 200;
+      let rs = fs.createReadStream(filePath);
+
+      // 压缩
+      if (filePath.match(conf.compress)) {
+        /* 压缩文件 */
+        rs = compress(req, res, rs);
+      }
+
+      // 数据流写入response
       rs.pipe(res);
     } else if (stats.isDirectory()) {
       /* 显示文件夹 */

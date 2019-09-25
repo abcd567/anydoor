@@ -9,4 +9,5 @@ module.exports = {
     lastModified: true,
     etag: true,
   },
+  compress: /\.(html|js|css|md)/,
 };
