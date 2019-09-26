@@ -8,7 +8,6 @@ const fs = require('fs');
 const path = require('path');
 const Handlebars = require('handlebars');
 const { promisify } = require('util');
-const conf = require('../myConfig/myDefaultConfig');
 const mime = require('./mime');
 const isFresh = require('./cache');
 const compress = require('./compress');
@@ -25,7 +24,7 @@ const source = fs.readFileSync(tplPath);
 const template = Handlebars.compile(source.toString());
 
 
-module.exports = async function route(req, res, filePath) {
+module.exports = async function route(req, res, filePath, conf) {
   try {
     // 判断路径是否存在,不存在捕获异常
     const stats = await stat(filePath);

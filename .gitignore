@@ -64,7 +64,7 @@ typings/
 .vs/
 *.njsproj
 *.sln
-bin/
+bin/Microsoft.NodejsTools.WebRole.dll
 obj/
 
 # pycharm
